@@ -1,0 +1,121 @@
+
+@import url("https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700;800&display=swap");
+
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: "Hind Siliguri", sans-serif;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    font-family: "Hind Siliguri", sans-serif;
+    background: #f8fafc;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  ::selection {
+    background: #a7f3d0;
+    color: #064e3b;
+  }
+}
+
+@layer components {
+  .form-input {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: #f8fafc;
+    color: #0f172a;
+    outline: none;
+    font-size: 14px;
+    transition: all 0.2s ease;
+  }
+
+  .form-input:focus {
+    border-color: #059669;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgb(16 185 129 / 10%);
+  }
+
+  .form-input::placeholder {
+    color: #94a3b8;
+  }
+
+  .dark .form-input {
+    background: #020617;
+    border-color: #334155;
+    color: #f1f5f9;
+  }
+
+  .dark .form-input:focus {
+    border-color: #10b981;
+    background: #0f172a;
+  }
+
+  .sidebar-link {
+    min-height: 43px;
+  }
+
+  .dashboard-card {
+    min-width: 0;
+  }
+}
+
+@layer utilities {
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 20px;
+  }
+
+  .dark .custom-scrollbar {
+    scrollbar-color: #475569 transparent;
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #475569;
+  }
+}
+
+html.dark body {
+  background: #020617;
+}

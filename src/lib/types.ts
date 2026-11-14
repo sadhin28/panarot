@@ -1,0 +1,4 @@
+export type ModuleKey = 'dashboard'|'buyers'|'sellers'|'purchases'|'sales'|'commission'|'stock'|'payments'|'expenses'|'profitshare'|'reports'|'settings';
+export type Party = { id: string; code: string; name: string; phone: string; address: string; status: 'active'|'inactive'; opening_balance: number; created_at: string };
+export type Purchase = { id: string; transaction_no: string; transaction_date: string; seller_id: string; pan_type: string; quantity_bira: number; rate_per_bira: number; gross_amount: number; commission_rate: number; commission_amount: number; net_payable: number; paid_amount: number; due_amount: number; note?: string };
+export type Sale = { id: string; transaction_no: string; transaction_date: string; buyer_id: string; pan_type: string; quantity_bira: number; rate_per_bira: number; total_amount: number; paid_amount: number; due_amount: number; note?: string };
