@@ -86,8 +86,11 @@ const pageTitles: Record<string, string> = {
 
 export default function AppLayout() {
   const { user, profile, signOut } = useAuth();
+
   const navigate = useNavigate();
   const location = useLocation();
+
+  const isAdmin = profile?.role === "admin";
 
   const [dark, setDark] = useState(
     () => localStorage.getItem("pan-arot-theme") === "dark"
@@ -129,6 +132,16 @@ export default function AppLayout() {
     .join("")
     .slice(0, 2)
     .toUpperCase();
+
+  // Employee-এর জন্য Settings menu বাদ দেওয়া
+  const visibleNavigation = navigation
+    .map((group) => ({
+      ...group,
+      items: group.items.filter(
+        (item) => item.path !== "/settings" || isAdmin
+      ),
+    }))
+    .filter((group) => group.items.length > 0);
 
   return (
     <div className="app-shell min-h-screen bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100">
@@ -179,7 +192,7 @@ export default function AppLayout() {
         </div>
 
         <nav className="custom-scrollbar flex-1 space-y-6 overflow-y-auto px-3 py-5">
-          {navigation.map((group) => (
+          {visibleNavigation.map((group) => (
             <div key={group.title}>
               {!collapsed && (
                 <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[1.5px] text-slate-400">
