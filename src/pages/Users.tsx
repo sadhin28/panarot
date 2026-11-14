@@ -21,7 +21,6 @@ import {
   Loader2,
   Phone,
   Mail,
-  CalendarDays,
   CheckCircle2,
   AlertCircle,
   KeyRound,
@@ -72,13 +71,10 @@ export default function Users() {
   const [form, setForm] = useState<UserForm>(initialForm);
 
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [message, setMessage] = useState("");
+  const [, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  // --------------------------------------------------
   // GET CURRENT USER
-  // --------------------------------------------------
-
   const getCurrentUser = useCallback(async () => {
     const { data, error } = await supabase.auth.getUser();
 
@@ -90,10 +86,7 @@ export default function Users() {
     setCurrentUserId(data.user?.id ?? null);
   }, []);
 
-  // --------------------------------------------------
   // LOAD USERS
-  // --------------------------------------------------
-
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     setErrorMessage("");
@@ -129,10 +122,7 @@ export default function Users() {
     fetchUsers();
   }, [getCurrentUser, fetchUsers]);
 
-  // --------------------------------------------------
   // EDGE FUNCTION ERROR HANDLER
-  // --------------------------------------------------
-
   const getFunctionError = async (error: any): Promise<string> => {
     console.error("Edge Function Error:", error);
 
@@ -165,10 +155,7 @@ export default function Users() {
     return result;
   };
 
-  // --------------------------------------------------
   // CALL MANAGE USER FUNCTION
-  // --------------------------------------------------
-
   const callManageUser = async (payload: Record<string, unknown>) => {
     const { data, error } = await supabase.functions.invoke(
       "manage-user",
@@ -188,10 +175,7 @@ export default function Users() {
     return data;
   };
 
-  // --------------------------------------------------
   // FILTER USERS
-  // --------------------------------------------------
-
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
       const searchText = search.toLowerCase();
@@ -217,19 +201,13 @@ export default function Users() {
     });
   }, [users, search, filter]);
 
-  // --------------------------------------------------
   // STATISTICS
-  // --------------------------------------------------
-
   const totalUsers = users.length;
   const activeUsers = users.filter((u) => u.is_active).length;
   const inactiveUsers = users.filter((u) => !u.is_active).length;
   const adminUsers = users.filter((u) => u.role === "admin").length;
 
-  // --------------------------------------------------
   // OPEN ADD MODAL
-  // --------------------------------------------------
-
   const openAddModal = () => {
     setEditingUser(null);
     setForm(initialForm);
@@ -238,10 +216,7 @@ export default function Users() {
     setModalOpen(true);
   };
 
-  // --------------------------------------------------
   // OPEN EDIT MODAL
-  // --------------------------------------------------
-
   const openEditModal = (user: Profile) => {
     setEditingUser(user);
 
@@ -258,10 +233,7 @@ export default function Users() {
     setModalOpen(true);
   };
 
-  // --------------------------------------------------
   // CLOSE MODAL
-  // --------------------------------------------------
-
   const closeModal = () => {
     if (saving) return;
 
@@ -271,10 +243,7 @@ export default function Users() {
     setErrorMessage("");
   };
 
-  // --------------------------------------------------
   // SAVE USER
-  // --------------------------------------------------
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -343,10 +312,7 @@ export default function Users() {
     }
   };
 
-  // --------------------------------------------------
   // CHANGE ACTIVE STATUS
-  // --------------------------------------------------
-
   const toggleStatus = async (user: Profile) => {
     if (user.id === currentUserId) {
       window.alert("নিজের Account Inactive করতে পারবেন না।");
@@ -395,10 +361,7 @@ export default function Users() {
     }
   };
 
-  // --------------------------------------------------
   // DELETE USER
-  // --------------------------------------------------
-
   const deleteUser = async (user: Profile) => {
     if (user.id === currentUserId) {
       window.alert("নিজের Account Delete করতে পারবেন না।");
@@ -435,10 +398,7 @@ export default function Users() {
     }
   };
 
-  // --------------------------------------------------
   // DATE FORMAT
-  // --------------------------------------------------
-
   const formatDate = (date: string) => {
     if (!date) return "-";
 
@@ -449,10 +409,7 @@ export default function Users() {
     });
   };
 
-  // --------------------------------------------------
   // INPUT HANDLER
-  // --------------------------------------------------
-
   const handleInputChange = (
     field: keyof UserForm,
     value: string
@@ -463,15 +420,10 @@ export default function Users() {
     }));
   };
 
-  // --------------------------------------------------
   // UI
-  // --------------------------------------------------
-
   return (
     <div className="min-h-screen space-y-6 bg-gray-50 p-4 text-gray-800 dark:bg-gray-950 dark:text-gray-100 sm:p-6">
-
       {/* HEADER */}
-
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-3">
@@ -480,9 +432,7 @@ export default function Users() {
             </div>
 
             <div>
-              <h1 className="text-2xl font-bold">
-                User Management
-              </h1>
+              <h1 className="text-2xl font-bold">User Management</h1>
 
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Manage account, roles and access permissions
@@ -515,7 +465,6 @@ export default function Users() {
       </div>
 
       {/* ERROR MESSAGE */}
-
       {errorMessage && !modalOpen && (
         <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
           <AlertCircle size={20} className="mt-0.5 shrink-0" />
@@ -527,9 +476,7 @@ export default function Users() {
       )}
 
       {/* STATISTICS */}
-
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-
         <StatCard
           title="Total Users"
           value={totalUsers}
@@ -560,17 +507,11 @@ export default function Users() {
       </div>
 
       {/* USER TABLE SECTION */}
-
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
-
         {/* SEARCH AND FILTER */}
-
         <div className="flex flex-col gap-4 border-b border-gray-200 p-4 dark:border-gray-800 lg:flex-row lg:items-center lg:justify-between">
-
           <div>
-            <h2 className="text-lg font-bold">
-              All Users
-            </h2>
+            <h2 className="text-lg font-bold">All Users</h2>
 
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Manage all registered users
@@ -578,7 +519,6 @@ export default function Users() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-
             <div className="relative">
               <Search
                 size={18}
@@ -611,7 +551,6 @@ export default function Users() {
         </div>
 
         {/* TABLE */}
-
         {loading ? (
           <div className="flex min-h-64 flex-col items-center justify-center gap-3">
             <Loader2
@@ -619,9 +558,7 @@ export default function Users() {
               className="animate-spin text-green-600"
             />
 
-            <p className="text-sm text-gray-500">
-              Loading users...
-            </p>
+            <p className="text-sm text-gray-500">Loading users...</p>
           </div>
         ) : filteredUsers.length === 0 ? (
           <div className="flex min-h-64 flex-col items-center justify-center px-4 text-center">
@@ -629,9 +566,7 @@ export default function Users() {
               <UsersIcon size={30} />
             </div>
 
-            <h3 className="font-semibold">
-              No Users Found
-            </h3>
+            <h3 className="font-semibold">No Users Found</h3>
 
             <p className="mt-1 text-sm text-gray-500">
               No users match your search or filter.
@@ -641,7 +576,6 @@ export default function Users() {
           <>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[850px] text-left text-sm">
-
                 <thead className="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-800/70 dark:text-gray-400">
                   <tr>
                     <th className="px-6 py-4">User</th>
@@ -654,7 +588,6 @@ export default function Users() {
                 </thead>
 
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-
                   {filteredUsers.map((user) => {
                     const isCurrentUser =
                       user.id === currentUserId;
@@ -664,12 +597,9 @@ export default function Users() {
                         key={user.id}
                         className="transition hover:bg-gray-50 dark:hover:bg-gray-800/40"
                       >
-
                         {/* USER */}
-
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-green-100 font-bold text-green-700 dark:bg-green-900/40 dark:text-green-400">
                               {user.full_name
                                 ?.charAt(0)
@@ -695,7 +625,6 @@ export default function Users() {
                         </td>
 
                         {/* PHONE */}
-
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                             <Phone size={15} className="text-gray-400" />
@@ -704,7 +633,6 @@ export default function Users() {
                         </td>
 
                         {/* ROLE */}
-
                         <td className="px-6 py-4">
                           <span
                             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${
@@ -719,14 +647,11 @@ export default function Users() {
                               <User size={14} />
                             )}
 
-                            {user.role === "admin"
-                              ? "Admin"
-                              : "Employee"}
+                            {user.role === "admin" ? "Admin" : "Employee"}
                           </span>
                         </td>
 
                         {/* STATUS */}
-
                         <td className="px-6 py-4">
                           <span
                             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${
@@ -741,23 +666,18 @@ export default function Users() {
                               <AlertCircle size={14} />
                             )}
 
-                            {user.is_active
-                              ? "Active"
-                              : "Inactive"}
+                            {user.is_active ? "Active" : "Inactive"}
                           </span>
                         </td>
 
                         {/* DATE */}
-
                         <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
                           {formatDate(user.created_at)}
                         </td>
 
                         {/* ACTIONS */}
-
                         <td className="px-6 py-4">
                           <div className="flex items-center justify-end gap-2">
-
                             <button
                               onClick={() => openEditModal(user)}
                               title="Edit User"
@@ -795,19 +715,16 @@ export default function Users() {
                             >
                               <Trash2 size={16} />
                             </button>
-
                           </div>
                         </td>
                       </tr>
                     );
                   })}
-
                 </tbody>
               </table>
             </div>
 
             {/* TABLE FOOTER */}
-
             <div className="border-t border-gray-200 px-6 py-4 text-sm text-gray-500 dark:border-gray-800">
               Showing{" "}
               <span className="font-semibold text-gray-800 dark:text-gray-200">
@@ -824,16 +741,11 @@ export default function Users() {
       </div>
 
       {/* ADD / EDIT MODAL */}
-
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm">
-
           <div className="my-auto w-full max-w-xl overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-900">
-
             {/* MODAL HEADER */}
-
             <div className="flex items-center justify-between bg-green-800 px-6 py-5 text-white">
-
               <div>
                 <h2 className="text-xl font-bold">
                   {editingUser ? "Edit User" : "Add New User"}
@@ -856,12 +768,10 @@ export default function Users() {
             </div>
 
             {/* MODAL BODY */}
-
             <form
               onSubmit={handleSubmit}
               className="space-y-5 p-6"
             >
-
               {errorMessage && (
                 <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
                   <AlertCircle size={18} className="mt-0.5 shrink-0" />
@@ -870,7 +780,6 @@ export default function Users() {
               )}
 
               {/* FULL NAME */}
-
               <div>
                 <label className="mb-2 block text-sm font-semibold">
                   Full Name <span className="text-red-500">*</span>
@@ -896,7 +805,6 @@ export default function Users() {
               </div>
 
               {/* EMAIL */}
-
               {!editingUser && (
                 <div>
                   <label className="mb-2 block text-sm font-semibold">
@@ -924,7 +832,6 @@ export default function Users() {
               )}
 
               {/* PASSWORD */}
-
               {!editingUser && (
                 <div>
                   <label className="mb-2 block text-sm font-semibold">
@@ -953,7 +860,6 @@ export default function Users() {
               )}
 
               {/* PHONE */}
-
               <div>
                 <label className="mb-2 block text-sm font-semibold">
                   Phone Number
@@ -978,7 +884,6 @@ export default function Users() {
               </div>
 
               {/* ROLE */}
-
               <div>
                 <label className="mb-2 block text-sm font-semibold">
                   User Role <span className="text-red-500">*</span>
@@ -991,13 +896,8 @@ export default function Users() {
                   }
                   className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-green-600 dark:border-gray-700 dark:bg-gray-800"
                 >
-                  <option value="employee">
-                    Employee
-                  </option>
-
-                  <option value="admin">
-                    Admin
-                  </option>
+                  <option value="employee">Employee</option>
+                  <option value="admin">Admin</option>
                 </select>
 
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
@@ -1007,9 +907,7 @@ export default function Users() {
               </div>
 
               {/* BUTTONS */}
-
               <div className="flex flex-col-reverse gap-3 border-t border-gray-100 pt-5 dark:border-gray-800 sm:flex-row sm:justify-end">
-
                 <button
                   type="button"
                   onClick={closeModal}
@@ -1041,21 +939,16 @@ export default function Users() {
                     </>
                   )}
                 </button>
-
               </div>
             </form>
           </div>
         </div>
       )}
-
     </div>
   );
 }
 
-// --------------------------------------------------
 // STATISTICS CARD
-// --------------------------------------------------
-
 function StatCard({
   title,
   value,
@@ -1087,7 +980,9 @@ function StatCard({
           </h3>
         </div>
 
-        <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${colors[color]}`}>
+        <div
+          className={`flex h-12 w-12 items-center justify-center rounded-xl ${colors[color]}`}
+        >
           {icon}
         </div>
       </div>

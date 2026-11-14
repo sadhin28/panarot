@@ -1,14 +1,19 @@
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import type { ElementType, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Activity,
   ArrowDownLeft,
   ArrowRight,
-  ArrowUpRight,
   CalendarDays,
-  CheckCircle2,
   Clock,
+  CheckCircle2,
   CreditCard,
   Leaf,
   Package,
@@ -27,7 +32,7 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
 
 // --------------------------------------------------
-// Types: Match the actual SQL View columns
+// Types
 // --------------------------------------------------
 
 interface DailySummary {
@@ -193,7 +198,7 @@ const getErrorMessage = (error: unknown) => {
 };
 
 // --------------------------------------------------
-// Small reusable components
+// Reusable Components
 // --------------------------------------------------
 
 function StatCard({
@@ -207,7 +212,7 @@ function StatCard({
   title: string;
   value: string;
   subtitle: string;
-  icon: React.ElementType;
+  icon: ElementType;
   iconClass?: string;
   onClick?: () => void;
 }) {
@@ -247,7 +252,7 @@ function SectionTitle({
 }: {
   title: string;
   subtitle?: string;
-  action?: React.ReactNode;
+  action?: ReactNode;
 }) {
   return (
     <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -272,7 +277,9 @@ function EmptyState({ message }: { message: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-10 text-center">
       <Package className="mb-3 text-gray-300" size={34} />
-      <p className="text-sm text-gray-500 dark:text-gray-400">{message}</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400">
+        {message}
+      </p>
     </div>
   );
 }
@@ -308,7 +315,7 @@ export default function Dashboard() {
   const sevenDaysAgo = addDays(today, -6);
 
   // ------------------------------------------------
-  // Load real Supabase data
+  // Load Supabase Data
   // ------------------------------------------------
 
   const loadDashboard = useCallback(async (isRefresh = false) => {
@@ -325,10 +332,10 @@ export default function Dashboard() {
       const currentMonthStart = getMonthStart(currentDate);
       const weekStart = addDays(currentDate, -6);
 
-      // Include the previous month days if the 7-day period
-      // crosses a month boundary.
       const queryStart =
-        weekStart < currentMonthStart ? weekStart : currentMonthStart;
+        weekStart < currentMonthStart
+          ? weekStart
+          : currentMonthStart;
 
       const [
         dailyResult,
@@ -425,7 +432,6 @@ export default function Dashboard() {
   useEffect(() => {
     void loadDashboard();
 
-    // Refresh dashboard when the user returns to this tab.
     const handleFocus = () => {
       void loadDashboard(true);
     };
@@ -438,22 +444,28 @@ export default function Dashboard() {
   }, [loadDashboard]);
 
   // ------------------------------------------------
-  // Calculate dashboard numbers
+  // Calculate Dashboard Numbers
   // ------------------------------------------------
 
   const selectedDailyRows = useMemo(() => {
     if (period === "today") {
-      return data.daily.filter((row) => row.entry_date === today);
+      return data.daily.filter(
+        (row) => row.entry_date === today
+      );
     }
 
     if (period === "week") {
       return data.daily.filter(
-        (row) => row.entry_date >= sevenDaysAgo && row.entry_date <= today
+        (row) =>
+          row.entry_date >= sevenDaysAgo &&
+          row.entry_date <= today
       );
     }
 
     return data.daily.filter(
-      (row) => row.entry_date >= monthStart && row.entry_date <= today
+      (row) =>
+        row.entry_date >= monthStart &&
+        row.entry_date <= today
     );
   }, [data.daily, period, today, sevenDaysAgo, monthStart]);
 
@@ -461,10 +473,13 @@ export default function Dashboard() {
     return selectedDailyRows.reduce(
       (result, row) => ({
         entries: result.entries + numeric(row.total_entries),
-        sellerLines: result.sellerLines + numeric(row.total_seller_lines),
+        sellerLines:
+          result.sellerLines + numeric(row.total_seller_lines),
         purchase: result.purchase + numeric(row.total_purchase),
-        commission: result.commission + numeric(row.total_commission),
-        slipCost: result.slipCost + numeric(row.total_slip_cost),
+        commission:
+          result.commission + numeric(row.total_commission),
+        slipCost:
+          result.slipCost + numeric(row.total_slip_cost),
         sellerPayable:
           result.sellerPayable + numeric(row.total_seller_payable),
       }),
@@ -492,10 +507,14 @@ export default function Dashboard() {
   const discountTotals = useMemo(() => {
     return data.discounts.reduce(
       (result, row) => ({
-        purchase: result.purchase + numeric(row.monthly_purchase),
-        earned: result.earned + numeric(row.discount_earned),
-        paid: result.paid + numeric(row.discount_paid),
-        remaining: result.remaining + numeric(row.discount_remaining),
+        purchase:
+          result.purchase + numeric(row.monthly_purchase),
+        earned:
+          result.earned + numeric(row.discount_earned),
+        paid:
+          result.paid + numeric(row.discount_paid),
+        remaining:
+          result.remaining + numeric(row.discount_remaining),
       }),
       {
         purchase: 0,
@@ -523,12 +542,16 @@ export default function Dashboard() {
       ? numeric(data.discounts[0].discount_percent)
       : getSetting(
           data.settings,
-          ["buyer_discount_rate", "buyer_discount_percent", "discount_rate"],
+          [
+            "buyer_discount_rate",
+            "buyer_discount_percent",
+            "discount_rate",
+          ],
           5
         );
 
   // ------------------------------------------------
-  // Seven-day chart data
+  // Seven-Day Chart
   // ------------------------------------------------
 
   const chartData = useMemo(() => {
@@ -559,7 +582,7 @@ export default function Dashboard() {
   );
 
   // ------------------------------------------------
-  // Loading screen
+  // Loading Screen
   // ------------------------------------------------
 
   if (loading) {
@@ -582,7 +605,7 @@ export default function Dashboard() {
   }
 
   // ------------------------------------------------
-  // Error screen
+  // Error Screen
   // ------------------------------------------------
 
   if (error) {
@@ -619,7 +642,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6 pb-8">
-      {/* Welcome header */}
+      {/* Welcome Header */}
 
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-700 to-green-600 p-6 text-white shadow-lg sm:p-8">
         <div className="relative z-10 flex flex-wrap items-center justify-between gap-5">
@@ -672,7 +695,7 @@ export default function Dashboard() {
         <div className="pointer-events-none absolute -bottom-32 right-40 h-64 w-64 rounded-full border-[35px] border-white/10" />
       </div>
 
-      {/* Period selector */}
+      {/* Period Selector */}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -709,7 +732,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Main statistics */}
+      {/* Main Statistics */}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <StatCard
@@ -765,7 +788,7 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Party overview */}
+      {/* Party Overview */}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <button
@@ -815,7 +838,7 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* Monthly discount */}
+      {/* Monthly Discount */}
 
       <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-6">
         <SectionTitle
@@ -875,7 +898,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Seven day chart */}
+      {/* Seven Day Chart */}
 
       <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-6">
         <SectionTitle
@@ -929,7 +952,7 @@ export default function Dashboard() {
         )}
       </section>
 
-      {/* Business calculation */}
+      {/* Business Calculation */}
 
       <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-6">
         <SectionTitle
@@ -1003,7 +1026,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Recent transactions */}
+      {/* Recent Transactions */}
 
       <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-6">
         <SectionTitle
@@ -1081,7 +1104,7 @@ export default function Dashboard() {
         )}
       </section>
 
-      {/* Quick actions */}
+      {/* Quick Actions */}
 
       <section>
         <SectionTitle

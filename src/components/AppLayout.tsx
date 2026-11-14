@@ -13,11 +13,9 @@ import {
   Truck,
   ShoppingCart,
   Wallet,
-  Package,
   Receipt,
   ChartNoAxesCombined,
   Settings,
-  Bell,
   UserCog,
   Menu,
   X,
@@ -45,24 +43,22 @@ const navigation = [
     items: [
       { label: "Buyer Management", path: "/buyers", icon: Users },
       { label: "Seller Management", path: "/sellers", icon: Truck },
-       { label: "দৈনিক পান এন্ট্রি", path: "/purchases", icon: ShoppingCart },
+      { label: "দৈনিক পান এন্ট্রি", path: "/purchases", icon: ShoppingCart },
     ],
   },
   {
     title: "আর্থিক হিসাব",
     items: [
-    { label: "পেমেন্ট ও কালেকশন", path: "/payments", icon: Wallet },
-    { label: "লেনদেনের খাতা", path: "/ledger", icon: BookOpen },
-    { label: "খরচ", path: "/expenses", icon: Receipt },
-    { label: "দৈনিক ক্লোজিং", path: "/daily-closing", icon: CalendarDays },
-    { label: "বিক্রয়", path: "/sales", icon: Receipt },
-    //   { label: "স্টক ও ইনভেন্টরি", path: "/stock", icon: Package },
+      { label: "পেমেন্ট ও কালেকশন", path: "/payments", icon: Wallet },
+      { label: "লেনদেনের খাতা", path: "/ledger", icon: BookOpen },
+      { label: "খরচ", path: "/expenses", icon: Receipt },
+      { label: "দৈনিক ক্লোজিং", path: "/daily-closing", icon: CalendarDays },
+      { label: "বিক্রয়", path: "/sales", icon: Receipt },
     ],
   },
   {
     title: "রিপোর্ট ও সেটিংস",
     items: [
-    //   { label: "নোটিফিকেশন", path: "/notifications", icon: Bell },
       { label: "রিপোর্ট", path: "/reports", icon: ChartNoAxesCombined },
       { label: "ব্যবহারকারী", path: "/users", icon: UserCog },
       { label: "ব্যবসার সেটিংস", path: "/settings", icon: Settings },
@@ -160,6 +156,7 @@ export default function AppLayout() {
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-lg shadow-emerald-600/20">
               <Leaf size={23} />
             </span>
+
             {!collapsed && (
               <span className="text-left">
                 <span className="block text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
@@ -292,6 +289,7 @@ export default function AppLayout() {
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">
                   {initials}
                 </span>
+
                 <span className="hidden text-left sm:block">
                   <span className="block max-w-[130px] truncate text-xs font-bold text-slate-800 dark:text-white">
                     {profile?.full_name || "User"}
@@ -300,7 +298,11 @@ export default function AppLayout() {
                     {profile?.role || "Account"}
                   </span>
                 </span>
-                <ChevronDown size={15} className="hidden text-slate-400 sm:block" />
+
+                <ChevronDown
+                  size={15}
+                  className="hidden text-slate-400 sm:block"
+                />
               </button>
 
               {profileOpen && (
