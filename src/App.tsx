@@ -91,7 +91,16 @@ function AppRoutes() {
           <Route path="/reports" element={<Reports/>} />
 
           <Route path="/notifications" element={<ComingSoon title="Notifications" />} />
-          <Route path="/settings" element={<Settings/>} />
+          <Route
+  path="/settings"
+  element={
+    profile?.role === "admin" ? (
+      <Settings />
+    ) : (
+      <Navigate to="/dashboard" replace />
+    )
+  }
+/>
           <Route path="/users" element={<UsersPage/>} />
         </Route>
       </Route>
