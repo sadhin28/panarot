@@ -39,6 +39,29 @@ export default function Settings() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [isDark, setIsDark] = useState(
+    () =>
+      typeof document !== "undefined" &&
+      document.documentElement.classList.contains("dark")
+  );
+
+  // Detect global theme changes
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(
+        document.documentElement.classList.contains("dark")
+      );
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const dark = isDark;
 
   const loadSettings = async () => {
     setLoading(true);
@@ -82,6 +105,7 @@ export default function Settings() {
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     setSaving(true);
     setMessage("");
     setError("");
@@ -105,10 +129,15 @@ export default function Settings() {
 
     if (
       payload.commission_percent < 0 ||
+      payload.commission_percent > 100 ||
       payload.buyer_discount_percent < 0 ||
-      payload.seller_slip_cost < 0
+      payload.buyer_discount_percent > 100 ||
+      payload.seller_slip_cost < 0 ||
+      !Number.isFinite(payload.commission_percent) ||
+      !Number.isFinite(payload.buyer_discount_percent) ||
+      !Number.isFinite(payload.seller_slip_cost)
     ) {
-      setError("কোনো সেটিংসের মান ঋণাত্মক হতে পারবে না।");
+      setError("সঠিক সেটিংসের মান লিখুন। পার্সেন্টেজ ০ থেকে ১০০-এর মধ্যে হতে হবে।");
       setSaving(false);
       return;
     }
@@ -126,28 +155,70 @@ export default function Settings() {
     setSaving(false);
   };
 
+  const commissionExample =
+    (6000 * Number(settings.commission_percent)) / 100;
+
+  const sellerPayable =
+    6000 - commissionExample - Number(settings.seller_slip_cost);
+
+  const inputClass = `
+    w-full rounded-xl border px-4 py-3 text-sm outline-none
+    transition-all duration-200
+    ${
+      dark
+        ? "border-gray-700 bg-gray-900 text-gray-100 placeholder:text-gray-500 focus:border-green-500 focus:ring-2 focus:ring-green-500/20"
+        : "border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-green-600 focus:ring-2 focus:ring-green-100"
+    }
+  `;
+
+  const cardClass = `
+    rounded-2xl border p-5 shadow-sm transition-colors duration-200
+    ${
+      dark
+        ? "border-gray-800 bg-gray-900"
+        : "border-gray-200 bg-white"
+    }
+  `;
+
+  const headingClass = dark
+    ? "text-gray-100"
+    : "text-gray-900";
+
+  const mutedClass = dark
+    ? "text-gray-400"
+    : "text-gray-500";
+
+  const labelClass = dark
+    ? "text-gray-300"
+    : "text-gray-700";
+
   if (loading) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center">
+      <div className={`flex min-h-[300px] items-center justify-center ${
+        dark ? "text-gray-300" : "text-gray-600"
+      }`}>
         <RefreshCw className="mr-2 h-5 w-5 animate-spin text-green-600" />
-        <span className="text-sm text-gray-500">সেটিংস লোড হচ্ছে...</span>
+        <span className="text-sm">সেটিংস লোড হচ্ছে...</span>
       </div>
     );
   }
 
-  const commissionExample = (6000 * Number(settings.commission_percent)) / 100;
-  const sellerPayable =
-    6000 - commissionExample - Number(settings.seller_slip_cost);
-
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-6 p-4 sm:p-6">
+    <div className={`mx-auto min-h-screen w-full max-w-7xl space-y-6 p-4 transition-colors duration-200 sm:p-6 ${
+      dark ? "bg-gray-950" : "bg-gray-50"
+    }`}>
+
+      {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <SettingsIcon className="h-6 w-6 text-green-700" />
-            <h1 className="text-2xl font-bold text-gray-900">সেটিংস</h1>
+            <SettingsIcon className="h-6 w-6 text-green-600" />
+            <h1 className={`text-2xl font-bold ${headingClass}`}>
+              সেটিংস
+            </h1>
           </div>
-          <p className="mt-1 text-sm text-gray-500">
+
+          <p className={`mt-1 text-sm ${mutedClass}`}>
             আপনার পান আরতের ব্যবসায়িক সেটিংস নিয়ন্ত্রণ করুন।
           </p>
         </div>
@@ -155,61 +226,91 @@ export default function Settings() {
         <button
           type="button"
           onClick={loadSettings}
-          className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className={`inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition ${
+            dark
+              ? "border-gray-700 bg-gray-900 text-gray-300 hover:bg-gray-800"
+              : "border-gray-200 bg-white text-gray-700 hover:bg-gray-100"
+          }`}
         >
           <RefreshCw className="h-4 w-4" />
           রিফ্রেশ
         </button>
       </div>
 
+      {/* Success Message */}
       {message && (
-        <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+        <div className={`flex items-center gap-2 rounded-xl border p-3 text-sm ${
+          dark
+            ? "border-green-900 bg-green-950/50 text-green-400"
+            : "border-green-200 bg-green-50 text-green-700"
+        }`}>
           <CheckCircle2 className="h-5 w-5 shrink-0" />
           {message}
         </div>
       )}
 
+      {/* Error Message */}
       {error && (
-        <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <div className={`flex items-center gap-2 rounded-xl border p-3 text-sm ${
+          dark
+            ? "border-red-900 bg-red-950/50 text-red-400"
+            : "border-red-200 bg-red-50 text-red-700"
+        }`}>
           <AlertCircle className="h-5 w-5 shrink-0" />
           {error}
         </div>
       )}
 
       <form onSubmit={handleSave} className="space-y-6">
-        <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+
+        {/* Business Information */}
+        <section className={cardClass}>
           <div className="mb-5 flex items-center gap-3">
-            <div className="rounded-lg bg-green-50 p-2">
-              <Building2 className="h-5 w-5 text-green-700" />
+            <div className={`rounded-xl p-3 ${
+              dark ? "bg-green-950" : "bg-green-50"
+            }`}>
+              <Building2 className="h-5 w-5 text-green-600" />
             </div>
+
             <div>
-              <h2 className="font-semibold text-gray-900">ব্যবসার তথ্য</h2>
-              <p className="text-xs text-gray-500">
+              <h2 className={`font-semibold ${headingClass}`}>
+                ব্যবসার তথ্য
+              </h2>
+              <p className={`text-xs ${mutedClass}`}>
                 আপনার প্রতিষ্ঠানের সাধারণ তথ্য
               </p>
             </div>
           </div>
 
-          <label className="mb-2 block text-sm font-medium text-gray-700">
+          <label className={`mb-2 block text-sm font-medium ${labelClass}`}>
             ব্যবসার নাম
           </label>
+
           <input
             type="text"
             value={settings.business_name}
-            onChange={(e) => updateField("business_name", e.target.value)}
+            onChange={(e) =>
+              updateField("business_name", e.target.value)
+            }
             placeholder="আপনার আরতের নাম"
-            className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100"
+            className={inputClass}
           />
         </section>
 
-        <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+        {/* Commission & Discount */}
+        <section className={cardClass}>
           <div className="mb-5 flex items-center gap-3">
-            <div className="rounded-lg bg-blue-50 p-2">
-              <Percent className="h-5 w-5 text-blue-700" />
+            <div className={`rounded-xl p-3 ${
+              dark ? "bg-blue-950" : "bg-blue-50"
+            }`}>
+              <Percent className="h-5 w-5 text-blue-500" />
             </div>
+
             <div>
-              <h2 className="font-semibold text-gray-900">কমিশন ও ডিসকাউন্ট</h2>
-              <p className="text-xs text-gray-500">
+              <h2 className={`font-semibold ${headingClass}`}>
+                কমিশন ও ডিসকাউন্ট
+              </h2>
+              <p className={`text-xs ${mutedClass}`}>
                 Seller commission এবং Buyer monthly discount
               </p>
             </div>
@@ -217,31 +318,36 @@ export default function Settings() {
 
           <div className="grid gap-5 sm:grid-cols-2">
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
+              <label className={`mb-2 block text-sm font-medium ${labelClass}`}>
                 Seller Commission (%)
               </label>
+
               <input
                 type="number"
                 min="0"
+                max="100"
                 step="0.01"
                 value={settings.commission_percent}
                 onChange={(e) =>
                   updateField("commission_percent", Number(e.target.value))
                 }
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100"
+                className={inputClass}
               />
-              <p className="mt-1 text-xs text-gray-500">
+
+              <p className={`mt-2 text-xs ${mutedClass}`}>
                 বর্তমানে: প্রতি ৳১,০০০-এ ৳১০০ কমিশন
               </p>
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
+              <label className={`mb-2 block text-sm font-medium ${labelClass}`}>
                 Buyer Monthly Discount (%)
               </label>
+
               <input
                 type="number"
                 min="0"
+                max="100"
                 step="0.01"
                 value={settings.buyer_discount_percent}
                 onChange={(e) =>
@@ -250,32 +356,40 @@ export default function Settings() {
                     Number(e.target.value)
                   )
                 }
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100"
+                className={inputClass}
               />
-              <p className="mt-1 text-xs text-gray-500">
+
+              <p className={`mt-2 text-xs ${mutedClass}`}>
                 মাসিক কেনাকাটার ওপর Buyer discount
               </p>
             </div>
           </div>
         </section>
 
-        <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+        {/* Slip Settings */}
+        <section className={cardClass}>
           <div className="mb-5 flex items-center gap-3">
-            <div className="rounded-lg bg-orange-50 p-2">
-              <Receipt className="h-5 w-5 text-orange-700" />
+            <div className={`rounded-xl p-3 ${
+              dark ? "bg-orange-950" : "bg-orange-50"
+            }`}>
+              <Receipt className="h-5 w-5 text-orange-500" />
             </div>
+
             <div>
-              <h2 className="font-semibold text-gray-900">স্লিপ সেটিংস</h2>
-              <p className="text-xs text-gray-500">
+              <h2 className={`font-semibold ${headingClass}`}>
+                স্লিপ সেটিংস
+              </h2>
+              <p className={`text-xs ${mutedClass}`}>
                 প্রতি Seller slip-এর খরচ
               </p>
             </div>
           </div>
 
           <div className="max-w-sm">
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label className={`mb-2 block text-sm font-medium ${labelClass}`}>
               Seller Slip Cost (৳)
             </label>
+
             <input
               type="number"
               min="0"
@@ -284,58 +398,84 @@ export default function Settings() {
               onChange={(e) =>
                 updateField("seller_slip_cost", Number(e.target.value))
               }
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-100"
+              className={inputClass}
             />
           </div>
         </section>
 
-        <section className="rounded-xl border border-green-200 bg-green-50 p-5">
-          <h2 className="mb-3 font-semibold text-gray-900">
+        {/* Commission Example */}
+        <section className={`rounded-2xl border p-5 ${
+          dark
+            ? "border-green-900 bg-green-950/30"
+            : "border-green-200 bg-green-50"
+        }`}>
+          <h2 className={`mb-3 font-semibold ${headingClass}`}>
             কমিশনের উদাহরণ
           </h2>
-          <p className="mb-4 text-sm text-gray-600">
+
+          <p className={`mb-4 text-sm ${mutedClass}`}>
             Seller-এর মোট পাওনা ৳৬,০০০ হলে বর্তমান সেটিংস অনুযায়ী হিসাব:
           </p>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="rounded-lg bg-white p-3">
-              <p className="text-xs text-gray-500">মোট টাকা</p>
-              <p className="mt-1 text-lg font-bold text-gray-900">
+            <div className={`rounded-xl p-4 ${
+              dark ? "bg-gray-900" : "bg-white"
+            }`}>
+              <p className={`text-xs ${mutedClass}`}>
+                মোট টাকা
+              </p>
+              <p className={`mt-2 text-xl font-bold ${headingClass}`}>
                 ৳৬,০০০
               </p>
             </div>
-            <div className="rounded-lg bg-white p-3">
-              <p className="text-xs text-gray-500">কমিশন + স্লিপ খরচ</p>
-              <p className="mt-1 text-lg font-bold text-red-600">
+
+            <div className={`rounded-xl p-4 ${
+              dark ? "bg-gray-900" : "bg-white"
+            }`}>
+              <p className={`text-xs ${mutedClass}`}>
+                কমিশন + স্লিপ খরচ
+              </p>
+              <p className="mt-2 text-xl font-bold text-red-500">
                 ৳{(commissionExample + Number(settings.seller_slip_cost)).toLocaleString("en-BD")}
               </p>
             </div>
-            <div className="rounded-lg bg-white p-3">
-              <p className="text-xs text-gray-500">Seller-এর পাওনা</p>
-              <p className="mt-1 text-lg font-bold text-green-700">
+
+            <div className={`rounded-xl p-4 ${
+              dark ? "bg-gray-900" : "bg-white"
+            }`}>
+              <p className={`text-xs ${mutedClass}`}>
+                Seller-এর পাওনা
+              </p>
+              <p className={`mt-2 text-xl font-bold ${
+                sellerPayable >= 0 ? "text-green-500" : "text-red-500"
+              }`}>
                 ৳{sellerPayable.toLocaleString("en-BD")}
               </p>
             </div>
           </div>
-          <p className="mt-3 text-xs text-gray-500">
+
+          <p className={`mt-3 text-xs ${mutedClass}`}>
             এটি শুধু উদাহরণ; সেটিংস পরিবর্তন করলে হিসাবও পরিবর্তিত হবে।
           </p>
         </section>
 
+        {/* Save Button */}
         <div className="flex justify-end">
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-green-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-green-700 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
             {saving ? (
               <RefreshCw className="h-4 w-4 animate-spin" />
             ) : (
               <Save className="h-4 w-4" />
             )}
+
             {saving ? "সংরক্ষণ হচ্ছে..." : "সেটিংস সংরক্ষণ করুন"}
           </button>
         </div>
+
       </form>
     </div>
   );
